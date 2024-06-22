@@ -24,6 +24,7 @@ export default function TimerChallenge({ title, targetTime }) {
   }
 
 
+  // Add a new function outside the if statement.
   // Resets the remaining time to the initial target time.
   function handleReset() {
     setTimeRemaining(targetTime * 1000); // Resets timeRemaining to its initial value. (targetTime is in seconds, so it convert it to ms)
@@ -53,11 +54,12 @@ export default function TimerChallenge({ title, targetTime }) {
   return (
     <>
     {/* Render the ResultModal component and pass necessary props (remainingTime prop) */}
+    {/* Adding onReset prop and trigger that from ResultModal. */}
       <ResultModal
         ref={dialog}
         targetTime={targetTime}
         remainingTime={timeRemaining} 
-        onReset={handleReset}
+        onReset={handleReset} 
       />
       <section className="challenge">
         <h2>{title}</h2>

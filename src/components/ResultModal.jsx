@@ -50,7 +50,8 @@ const ResultModal = forwardRef(function ResultModal(
         <strong>{formattedRemainingTime} seconds left.</strong>
       </p>
 
-      {/* Form to handle the reset action */}
+      {/* Form to handle the reset action.
+      onSubmit triggered whenever the form is sumbitted */}
       <form method="dialog" onSubmit={onReset}>
         <button>Close</button>
       </form>
