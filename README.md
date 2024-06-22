@@ -21,22 +21,105 @@ The game counts down from a specified time and updates the UI in real-time.
 - CSS3
 
 
-## How It Works
-### Using `useRef` for Timer Management and Modal Visibility
+## How It Works 📌
+#### Using `useRef` for Timer Management and `Modal` Visibility
 In this project, **`useRef`** is used to manage the timer's state and control the visibility of the result modal. <br>
 Unlike **`useState`**, which triggers a re-render when updated, `useRef` provides a way to persist values between renders without causing a re-render.
 
 
-### Explanation
+### Explanation 🔎
 - [x] `useRef` is used to create `timer` and `dialog` references for managing the interval timer and modal visibility.
 - [x] `useImperativeHandle` in the `ResultModal` component allows the parent component to control the modal's visibility by exposing the `open` method.
 - [x] The `TimerChallenge` component manages the countdown logic and interacts with the `ResultModal` component through refs.
 
+---
 
-Brief explanation of the key parts of the code:
+## Parent-Child relationship 👨‍👧
+Between `TimerChallenge` and `ResultModal`:
 
-### Timer Challenge Component
+1. **Parent-Child Relationship**:
+   - **`TimerChallenge`**: The parent component that holds the timer logic and manages the state of the challenge.
+   - **`ResultModal`**: The child component that displays the result modal. `TimerChallenge` controls it using a ref.
 
+```javascript
+import { useState, useRef } from 'react';
+import ResultModal from './ResultModal.jsx';
+
+export default function TimerChallenge({ title, targetTime }) {
+  const dialog = useRef(); 
+  
+    if (timeRemaining <= 0) {
+    clearInterval(timer.current); 
+    dialog.current.open(); // Calls the open method 
+  }
+  ...
+}
+```
+
+```javascript
+import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { createPortal } from 'react-dom';
+
+const ResultModal = forwardRef(function ResultModal(
+  { targetTime, remainingTime, onReset },  ref) {
+      const dialog = useRef();
+      ...
+});
+export default ResultModal;
+```
+
+2. **`useImperativeHandle`**:
+   - This hook is used inside `ResultModal` to expose a custom `open` method.
+   - This method is used to show the modal dialog when called.
+
+ ```javascript
+ useImperativeHandle(ref, () => {
+    return {
+      // This method is used to show the modal dialog when called.
+      open() {
+        dialog.current.showModal(); // Show the modal dialog
+      },
+    };  
+});
+```
+
+3. **`createPortal`**:
+   - The `createPortal` function is used to render the modal in a different part of the DOM.
+   - This allows the modal to overlay other content and not be constrained by the parent component's styling or structure.
+
+```javascript
+return createPortal(
+    <dialog ref={dialog} className="result-modal">
+    ...
+    </dialog>,
+    document.getElementById('modal') // Attach the modal to the DOM element with id 'modal'
+  );
+});
+export default ResultModal;
+```
+
+
+### How They Interact
+- **In `TimerChallenge`**:
+  - A ref (`dialog`) is created using `useRef`.
+  - This ref is passed to `ResultModal` using the `ref` attribute.
+  - When the timer reaches zero, `dialog.current.open()` is called to show the modal.
+
+- **In `ResultModal`**:
+  - `useImperativeHandle` customizes the ref to expose the `open` method.
+  - The `open` method uses `dialog.current.showModal()` to display the modal.
+
+### Summary
+- **Parent Component**: `TimerChallenge` is the parent component because it renders and controls `ResultModal`.
+- **Child Component**: `ResultModal` is the child component, which uses `useImperativeHandle` to expose its `open` method to the parent component.
+- **Interaction**: `TimerChallenge` can programmatically control `ResultModal` through the ref and the exposed `open` method, allowing it to open the modal when needed.
+
+
+---
+
+#### Brief explanation of the key parts of the code 📋:
+
+### TimerChallenge Component
 ```javascript
 import { useState, useRef } from 'react';
 import ResultModal from './ResultModal.jsx';
@@ -93,9 +176,9 @@ export default function TimerChallenge({ title, targetTime }) {
   );
 }
 ```
+<br>
 
-### Result Modal Component
-
+### ResultModal Component
 ```javascript
 import { forwardRef, useImperativeHandle, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -135,9 +218,9 @@ const ResultModal = forwardRef(function ResultModal(
 
 export default ResultModal;
 ```
+<br>
 
 ### Player Component
-
 ```javascript
 import { useState, useRef } from 'react';
 
@@ -161,7 +244,32 @@ export default function Player() {
   );
 }
 ```
+<br>
 
+### App.jsx
+```javascript
+import Player from './components/Player.jsx';
+import TimerChallenge from './components/TimerChallenge.jsx';
+
+function App() {
+  return (
+    <>
+      {/* Render the Player component */}
+      <Player />
+      <div id="challenges">
+        {/* Render multiple TimerChallenge components with different 'target times' */}
+        <TimerChallenge title="Easy" targetTime={1} />
+        <TimerChallenge title="Not easy" targetTime={5} />
+        <TimerChallenge title="Getting tough" targetTime={10} />
+        <TimerChallenge title="Pros only" targetTime={15} />
+      </div>
+    </>
+  );
+}
+export default App;
+
+
+```
 ---
 ## Screenshots 🖼️
 ![refs](https://github.com/shanibider/React-Countdown-Game/assets/72359805/7d7e37d9-e3e0-4cec-9f1c-08ce37d5838b)
